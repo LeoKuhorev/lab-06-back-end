@@ -46,12 +46,37 @@ app.get('/location', (request, response) => {
   }
 });
 
+app.get('/weather', (request, response) => {
+  console.log(request);
+ try {
+   const weatherData = require('./data/blacksky.json');
+   const dailyWeatherData = weatherMaker(weatherData);{
+    response.send(dailyWeatherData);
+   }
+  }
+  catch(error) {
+    errorHandler('Something went wrong', request, response);
+  }
+});
+
 //Helper functions
 function Location(city, geoData) {
   this.search_query = city;
   this.formatted_query = geoData.results[0].formatted_address;
   this.latitude = geoData.results[0].geometry.location.lat;
   this.longitude = geoData.results[0].geometry.location.lng;
+}
+
+function weatherMaker(weatherData){
+  let result = [];
+  weatherData.daily.data.forEach((element) => {
+    let tmp = {
+      forecast : element.summary,
+      time : element.time
+    };
+    result.push(tmp);
+  });
+  return result;
 }
 
 function errorHandler (error, request, response) {
